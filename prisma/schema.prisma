@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  password String
+  posts    Post[]
+  shares    Share[] 
+  commments Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
+   followers Follow[]  @relation("followerRelation")
+  following Follow[]  @relation("followingRelation")
+  profile Profile[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  url       String
+  createdAt DateTime @default(now())
+  isDeleted  Boolean @default(false)
+  caption    String
+  likes     Like[]
+  shares    Share[]
+  comments  Comment[]
+  bookmark  Bookmark[]
+
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id     Int   @id @default(autoincrement())
+  postId Int
+  post   Post  @relation(fields: [postId], references: [id])
+  userId Int
+  user   User  @relation(fields: [userId], references: [id])
+}
+
+model Share {
+  id     Int   @id @default(autoincrement())
+  postId Int
+  post   Post  @relation(fields: [postId], references: [id])
+  userId Int
+  user   User  @relation(fields: [userId], references: [id])
+}
+
+model Follow {
+    id          Int     @id @default(autoincrement())
+  followerId  Int
+  follower    User    @relation("followerRelation", fields: [followerId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  followingId Int
+  following   User    @relation("followingRelation", fields: [followingId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Bookmark {
+  id Int  @id @default(autoincrement())  
+  postId    Int 
+  post   Post  @relation(fields: [postId], references: [id])
+  userId Int
+  user   User  @relation(fields: [userId], references: [id])
+
+}
+
+model Profile {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique
+  user      User    @relation(fields: [userId], references: [id])
+  bio       String?
+  avatar    String?
+  location  String?
+}

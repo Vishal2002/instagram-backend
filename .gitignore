@@ -1,0 +1,16 @@
+node_modules/
+
+# Ignore build outputs
+dist/
+
+
+# Ignore environment variables
+.env
+
+
+# Ignore Prisma migrations and cache
+prisma/migrations/
+
+
+# Ignore TypeScript build artifacts
+*.tsbuildinfo
